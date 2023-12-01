@@ -7,7 +7,7 @@ String getQueryParams(Map<dynamic, dynamic> data) {
 }
 
 class Api {
-  int getLimit([int? passedLimit]) {
+    int getLimit([int? passedLimit]) {
     if (passedLimit == null) return Constants.PAGINATION['LIMIT'];
 
 // if (passedLimit > Constants.PAGINATION['LIMIT_MAX']) {

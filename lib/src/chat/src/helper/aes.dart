@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 
 import 'package:encrypt/encrypt.dart' as encrypt;
-import 'package:push_restapi_dart/push_restapi_dart.dart';
 
 String generateRandomSecret(int length) {
   final random = math.Random.secure();
@@ -23,7 +22,7 @@ String generateRandomSecret(int length) {
 Future<String> aesEncrypt(
     {required String plainText, required String secretKey}) async {
   try {
-    final salt = genRandomWithNonZero(8);
+    final salt = generateRandomSecretNonZero(8);
     var keyndIV = deriveKeyAndIV(secretKey, salt);
     final key = encrypt.Key(keyndIV.first);
     final iv = encrypt.IV(keyndIV.last);
@@ -39,7 +38,7 @@ Future<String> aesEncrypt(
   }
 }
 
-Uint8List genRandomWithNonZero(int seedLength) {
+Uint8List generateRandomSecretNonZero(int seedLength) {
   final random = Random.secure();
   const int randomMax = 245;
   final Uint8List uint8list = Uint8List(seedLength);
@@ -66,7 +65,6 @@ String aesDecrypt({required String cipherText, required String secretKey}) {
         encrypter.decrypt64(base64.encode(encryptedBytes), iv: iv);
     return decrypted;
   } catch (error) {
-    log('decryptAESCryptoJS:error $error');
     rethrow;
   }
 }

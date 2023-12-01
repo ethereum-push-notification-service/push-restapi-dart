@@ -97,8 +97,6 @@ Future<MessageWithCID?> send(ChatSendOptions options) async {
         group: group,
         isValidGroup: isValidGroup);
 
-    log('sendMessagePayload $sendMessagePayload');
-
     return sendMessageService(sendMessagePayload, isIntent);
   } catch (e) {
     log('[Push SDK] - API  - Error - API $e');

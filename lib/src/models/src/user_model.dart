@@ -1,8 +1,12 @@
+// ignore_for_file: must_be_immutable
+
 import 'dart:convert';
+
+import 'package:equatable/equatable.dart';
 
 import '../../../push_restapi_dart.dart';
 
-class Wallet {
+class Wallet extends Equatable {
   String? _address;
   Signer? signer;
   String? pgpPrivateKey;
@@ -16,6 +20,9 @@ class Wallet {
   }
 
   String? get address => _address ?? signer?.getAddress();
+
+  @override
+  List<Object?> get props => [_address, pgpPrivateKey, signer];
 }
 
 abstract class Signer {

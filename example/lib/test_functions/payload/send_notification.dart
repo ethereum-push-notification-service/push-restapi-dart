@@ -4,8 +4,6 @@ import 'package:web3dart/web3dart.dart' as web3;
 
 import '../../__lib.dart';
 
-void testSendNotificationFromChannel() async {}
-
 void testSendVideoCallNotification() async {
   // 1. Create Random Wallet Signer
   final web3.Credentials randomCredentials =

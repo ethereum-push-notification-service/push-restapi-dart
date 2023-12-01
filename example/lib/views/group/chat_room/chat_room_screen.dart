@@ -1,3 +1,4 @@
+import 'package:clipboard/clipboard.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -55,6 +56,18 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                   },
                   icon: Icon(Icons.reply)),
             ),
+          if (room.groupInformation != null)
+            InkWell(
+                onTap: () {
+                  FlutterClipboard.copy(room.groupInformation!.chatId!)
+                      .then((value) {
+                    showMyDialog(
+                        context: context,
+                        title: 'Address ',
+                        message: 'Group address copied successfully');
+                  });
+                },
+                child: Icon(Icons.copy)),
           if (room.groupInformation != null)
             InkWell(
               onTap: () {

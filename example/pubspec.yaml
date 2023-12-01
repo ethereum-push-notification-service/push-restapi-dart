@@ -49,6 +49,7 @@ dependencies:
 
   push_restapi_dart:
     path: '../'
+  equatable: ^2.0.5
 
 
 
