@@ -26,10 +26,10 @@ Future<KeyPair> generateKeyPair() async {
   }
 }
 
-Future<String> sign(
-    {required String message,
-    required String publicKey,
-    required String privateKey}) async {
+Future<String> sign({
+  required String message,
+  required String privateKey,
+}) async {
   final signatureWithVersion = await OpenPGP.sign(message, privateKey, "");
   return removeVersionFromPublicKey(signatureWithVersion);
 }

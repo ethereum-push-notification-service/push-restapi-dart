@@ -100,3 +100,42 @@ void updateGroupRequestValidator(
     throw Exception('Invalid address field!');
   }
 }
+
+void validateGroupMemberUpdateOptions({
+  required String chatId,
+  required UpsertDTO upsert,
+  required List<String> remove,
+}) {
+  if (chatId.isEmpty) {
+    throw Exception('chatId cannot be null or empty');
+  }
+
+  // Validating upsert object
+  final allowedRoles = ['members', 'admins'];
+
+  upsert.toJson().forEach((role, value) {
+    if (!allowedRoles.contains(role)) {
+      throw Exception(
+          'Invalid role: $role. Allowed roles are ${allowedRoles.join(', ')}.');
+    }
+
+    if (value != null && value is List<String> && value.length > 1000) {
+      throw Exception('$role array cannot have more than 1000 addresses.');
+    }
+
+    value.forEach((address) => {
+          if (!isValidETHAddress(address))
+            {throw Exception('Invalid address found in $role list.')}
+        });
+  });
+
+  // Validating remove array
+  if (remove.length > 1000) {
+    throw Exception('Remove array cannot have more than 1000 addresses.');
+  }
+  for (var address in remove) {
+    if (!isValidETHAddress(address)) {
+      throw Exception('Invalid address found in remove list.');
+    }
+  }
+}

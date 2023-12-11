@@ -32,7 +32,7 @@ Future<SpaceDTO> removeSpeakers({
         account: account,
         pgpPrivateKey: pgpPrivateKey);
     if (group != null) {
-      return groupDtoToSpaceDto(group);
+      return groupInfoDtoToSpaceDto(group);
     } else {
       throw Exception('Error while updating Space : $spaceId');
     }

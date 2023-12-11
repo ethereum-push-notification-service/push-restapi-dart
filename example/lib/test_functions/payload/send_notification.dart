@@ -38,7 +38,7 @@ void testSendVideoCallNotification() async {
 
   // 5. Decrypt keys in Grp
   final pgpPrivateKey = await push.decryptPGPKey(
-    encryptedPGPPrivateKey: user?.encryptedPrivateKey as String,
+    encryptedPGPPrivateKey: user.encryptedPrivateKey as String,
     wallet: push.getWallet(signer: signer),
   );
 
@@ -47,7 +47,7 @@ void testSendVideoCallNotification() async {
     senderType: 1,
     signer: signer,
     pgpPrivateKey: pgpPrivateKey,
-    pgpPublicKey: user?.publicKey,
+    pgpPublicKey: user.publicKey,
     chatId: group?.chatId,
     type: push.NOTIFICATION_TYPE.BROADCAST, // broadcast
     identityType: push.IDENTITY_TYPE.DIRECT_PAYLOAD, // direct payload

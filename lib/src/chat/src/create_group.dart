@@ -1,5 +1,4 @@
 import '../../../push_restapi_dart.dart';
-import 'dart:convert';
 
 Future<GroupDTO?> createGroup({
   String? account,
@@ -61,11 +60,9 @@ Future<GroupDTO?> createGroup({
     };
 
     final hash = generateHash(bodyToBeHashed);
-    final publicKeyJSON = jsonDecode(connectedUser!.user.publicKey!);
     final signature = await sign(
       message: hash,
       privateKey: connectedUser.privateKey!,
-      publicKey: publicKeyJSON["key"] ?? connectedUser.user.publicKey!,
     );
 
     const sigType = 'pgp';

@@ -64,7 +64,9 @@ Future<String> signMessageWithPGP(
     required String publicKey,
     required String privateKeyArmored}) async {
   final signature = await sign(
-      message: message, publicKey: publicKey, privateKey: privateKeyArmored);
+    message: message,
+    privateKey: privateKeyArmored,
+  );
   return signature;
 }
 
@@ -83,9 +85,9 @@ Future<Map<String, String>> encryptAndSign({
   final encryptedSecret = await pgpEncrypt(plainText: secretKey, keys: keys);
 
   final signature = await sign(
-      message: cipherText,
-      privateKey: senderPgpPrivateKey,
-      publicKey: publicKey);
+    message: cipherText,
+    privateKey: senderPgpPrivateKey,
+  );
 
   return {
     'cipherText': cipherText,

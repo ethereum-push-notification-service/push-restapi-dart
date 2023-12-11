@@ -24,6 +24,11 @@ Future<String?> approve({
 
     final isGroup = !isValidETHAddress(senderAddress);
 
+    final connectedUser = await getConnectedUserV2(
+      wallet: wallet,
+      privateKey: pgpPrivateKey,
+    );
+
     late String fromDID, toDID;
 
     if (isGroup) {
@@ -34,20 +39,51 @@ Future<String?> approve({
       toDID = await getUserDID(address: address);
     }
 
+    String? encryptedSecret;
+
+    /**
+     * GENERATE VERIFICATION PROOF
+     */
+
+    // pgp is used for public grps & w2w
+    // pgpv2 is used for private grps
+    var sigType = 'pgp';
+
+    if (isGroup) {
+      final group = await getGroupInfo(chatId: senderAddress);
+      if (!group.isPublic) {
+        /**
+         * Secret Key Gen Override has no effect if an encrypted secret key is already present
+         */
+        if (group.encryptedSecret != null) {
+          sigType = 'pgpv2';
+          final secretKey = generateRandomSecret(15);
+
+          final groupMembers = await getAllGroupMembersPublicKeys(
+            chatId: group.chatId,
+          );
+
+          final publickKeys = groupMembers.map((e) => e.publicKey).toList();
+          publickKeys.add(connectedUser.publicKey!);
+          encryptedSecret =
+              await pgpEncrypt(plainText: secretKey, keys: publickKeys);
+        }
+      }
+    }
+
     final bodyToBeHashed = {
       "fromDID": fromDID,
       "toDID": toDID,
       "status": status,
+      if (sigType == 'pgpv2') 'encryptedSecret': encryptedSecret,
     };
     final hash = generateHash(bodyToBeHashed);
 
     final signature = await sign(
       message: hash,
-      privateKey: pgpPrivateKey,
-      publicKey: pgpPrivateKey,
+      privateKey: connectedUser.privateKey!,
     );
 
-    final sigType = "pgp";
     final body = {
       "fromDID": fromDID,
       "toDID": toDID,
@@ -55,6 +91,7 @@ Future<String?> approve({
       "status": status,
       "sigType": sigType,
       "verificationProof": '$sigType:$signature',
+      'encryptedSecret': encryptedSecret,
     };
 
     final result = await http.put(
@@ -63,12 +100,13 @@ Future<String?> approve({
       skipJsonDecode: true,
     );
 
-    log('accept result: $result');
-
     if (result == null) {
-      return null;
+      throw Exception(isGroup
+          ? 'Unanable to accept $senderAddress group invite'
+          : 'Unable to approve request from $senderAddress');
     }
 
+    //if chat address was returned
     if (result is String) {
       return result;
     }

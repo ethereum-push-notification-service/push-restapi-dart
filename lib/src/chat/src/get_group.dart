@@ -1,6 +1,6 @@
 import 'package:push_restapi_dart/push_restapi_dart.dart';
 
-Future<GroupDTO?> getGroup({required String chatId}) async {
+Future<GroupDTO> getGroup({required String chatId}) async {
   if (chatId.isEmpty) {
     throw Exception('chatId cannot be null or empty');
   }

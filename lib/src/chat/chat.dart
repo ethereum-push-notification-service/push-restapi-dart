@@ -12,6 +12,7 @@ export 'src/models/chat_member_counts.dart';
 export 'src/models/chat_members.dart';
 export 'src/models/group_member_status.dart';
 export 'src/models/group_member_public_key.dart';
+export 'src/models/update_group_members.dart';
 
 export 'src/chat.dart';
 export 'src/chats.dart';
@@ -37,3 +38,6 @@ export 'src/get_all_group_members.dart';
 export 'src/get_group_member_status.dart';
 export 'src/get_group_members_public_keys.dart';
 export 'src/get_all_group_members_public_keys.dart';
+export 'src/update_group_config.dart';
+export 'src/update_group_profile.dart';
+export 'src/update_group_members.dart';

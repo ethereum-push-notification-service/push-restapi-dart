@@ -183,7 +183,6 @@ Future<String> getVerificationProof({
         final signature = await sign(
           message: hash,
           privateKey: pgpPrivateKey as String,
-          publicKey: jsonDecode(pgpPublicKey as String)['key'],
         );
         verificationProof = 'pgpv2:$signature:meta:$chatId::uid::$uuid';
         break;

@@ -88,24 +88,27 @@ class _ChatRequestsTabState extends ConsumerState<ChatRequestsTab> {
           return Center(child: Text('Cannot load Requests'));
         }
 
-        return ListView.separated(
-          separatorBuilder: (context, index) => Divider(),
-          itemCount: requestsList.length,
-          itemBuilder: (context, index) {
-            final item = requestsList[index];
-            final image =
-                item.groupInformation?.groupImage ?? item.profilePicture;
+        return RefreshIndicator(
+          onRefresh: vm.loadRequests,
+          child: ListView.separated(
+            separatorBuilder: (context, index) => Divider(),
+            itemCount: requestsList.length,
+            itemBuilder: (context, index) {
+              final item = requestsList[index];
+              final image =
+                  item.groupInformation?.groupImage ?? item.profilePicture;
 
-            return InkWell(
-                onTap: () {
-                  onAccetRequests(item.chatId!);
-                },
-                child: ConversationTile(
-                  image: image,
-                  item: item,
-                  subText: 'Tap to Accept Request',
-                ));
-          },
+              return InkWell(
+                  onTap: () {
+                    onAccetRequests(item.chatId!);
+                  },
+                  child: ConversationTile(
+                    image: image,
+                    item: item,
+                    subText: 'Tap to Accept Request',
+                  ));
+            },
+          ),
         );
       },
     );

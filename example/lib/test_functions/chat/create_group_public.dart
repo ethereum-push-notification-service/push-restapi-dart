@@ -4,7 +4,7 @@ import 'package:ethers/signers/wallet.dart' as ether;
 
 import '../../models/signer.dart';
 
-void testCreateGroupPublic() async {
+Future testCreateGroupPublic() async {
   final ethersWallet = ether.Wallet.fromPrivateKey(
       "c41b72d56258e50595baa969eb0949c5cee9926ac55f7bad21fe327236772e0c");
 
@@ -23,6 +23,6 @@ void testCreateGroupPublic() async {
 
   print(result);
   if (result != null) {
-    print('testCreateGroup response: ${result}');
+    print('testCreateGroup response: ${result.chatId}');
   }
 }

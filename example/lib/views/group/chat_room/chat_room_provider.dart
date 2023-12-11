@@ -57,10 +57,11 @@ class ChatRoomProvider extends ChangeNotifier {
   }
 
   onRefreshRoom({
-    GroupDTO? groupData,
+    GroupInfoDTO? groupData,
   }) async {
-    if (groupData?.chatId == _currentChatid) {
-      _room.groupInformation = groupData;
+    if (groupData != null && groupData.chatId == _currentChatid) {
+      _room.groupInformation =
+          GroupDTO.fromJson(groupData.toJson()); //groupData;
       notifyListeners();
     }
 
@@ -207,10 +208,8 @@ class ChatRoomProvider extends ChangeNotifier {
 
   Future getLatesGroupInfo() async {
     final result = await getGroup(chatId: _currentChatid);
-    if (result != null) {
-      _room.groupInformation = result;
-      notifyListeners();
-    }
+    _room.groupInformation = result;
+    notifyListeners();
   }
 
   GroupDTO? get groupInformation => _room.groupInformation;

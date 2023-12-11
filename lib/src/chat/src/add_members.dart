@@ -1,7 +1,7 @@
 import '../../../push_restapi_dart.dart';
 import 'package:push_restapi_dart/push_restapi_dart.dart' as push;
 
-Future<GroupDTO?> addMembers({
+Future<GroupInfoDTO?> addMembers({
   required String chatId,
   String? account,
   Signer? signer,
@@ -21,49 +21,13 @@ Future<GroupDTO?> addMembers({
       throw Exception("Member address array cannot be empty!");
     }
 
-    for (var member in members) {
-      if (!isValidETHAddress(member)) {
-        throw Exception('Invalid member address: $member');
-      }
-    }
-
-    final group = await getGroup(chatId: chatId);
-
-    if (group == null) {
-      throw Exception('Group not found: $chatId');
-    }
-
-    List<String> convertedMembers =
-        getMembersList(group.members, group.pendingMembers);
-
-    List<String> membersToBeAdded =
-        members.map((member) => walletToPCAIP10(member)).toList();
-
-    for (var member in membersToBeAdded) {
-      if (convertedMembers.contains(member)) {
-        throw Exception('Member $member already exists in the list');
-      }
-    }
-
-    convertedMembers.addAll(membersToBeAdded);
-
-    List<String> convertedAdmins =
-        getAdminsList(group.members, group.pendingMembers);
-
-    final updatedGroup = await push.updateGroup(
-        chatId: chatId,
-        groupName: group.groupName!,
-        groupImage: group.groupImage,
-        groupDescription: group.groupDescription!,
-        members: convertedMembers,
-        admins: convertedAdmins,
-        signer: signer,
-        scheduleAt: group.scheduleAt,
-        scheduleEnd: group.scheduleEnd,
-        status: ChatStatus.ENDED,
-        isPublic: group.isPublic);
-
-    return updatedGroup;
+    return push.updateGroupMembers(
+      chatId: chatId,
+      signer: signer,
+      pgpPrivateKey: pgpPrivateKey,
+      account: account,
+      upsert: UpsertDTO(members: members),
+    );
   } catch (e) {
     log("[Push SDK] - API  - Error - API addMembers -: $e ");
     rethrow;

@@ -44,7 +44,7 @@ void testCreateRandomUser() async {
       },
     );
 
-    print(result?.did);
+    print(result.did);
   } catch (e) {
     print(e);
   }

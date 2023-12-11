@@ -6,13 +6,9 @@ Future<SpaceDTO> getSpaceById({
 }) async {
   try {
     final group = await push.getGroup(chatId: spaceId);
-    if (group != null) {
-      return groupDtoToSpaceDto(group);
-    } else {
-      throw Exception('Space not found for id : $spaceId');
-    }
+    return groupDtoToSpaceDto(group);
   } catch (e) {
     print('[Push SDK] - API  - Error - API update -:  $e');
-    rethrow;
+    throw Exception('Space not found for id : $spaceId');
   }
 }

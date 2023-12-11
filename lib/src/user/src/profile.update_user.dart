@@ -35,11 +35,9 @@ Future<User?> profileUpdate({
 
     final hash = generateHash(updatedProfile);
 
-    //TODO add sign function parameter values
     final signature = await sign(
       message: hash,
       privateKey: pgpPrivateKey,
-      publicKey: pgpPrivateKey,
     );
 
     final sigType = 'pgp';
