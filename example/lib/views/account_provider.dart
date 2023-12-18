@@ -1,6 +1,6 @@
 import '../__lib.dart';
 import 'package:push_restapi_dart/push_restapi_dart.dart';
-
+import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:ethers/signers/wallet.dart' as ether;
 
 final accountProvider = ChangeNotifierProvider((ref) => AccountProvider(ref));
@@ -97,6 +97,7 @@ class AccountProvider extends ChangeNotifier {
     }
   }
 
+  io.Socket? pushSDKSocket;
   Future<void> creatSocketConnection() async {
     try {
       final options = SocketInputOptions(
@@ -109,26 +110,26 @@ class AccountProvider extends ChangeNotifier {
         ),
       );
 
-      final pushSDKSocket = await createSocketConnection(options);
+      pushSDKSocket = await createSocketConnection(options);
       if (pushSDKSocket == null) {
         throw Exception('PushSDKSocket Connection Failed');
       }
 
-      pushSDKSocket.connect();
+      pushSDKSocket!.connect();
 
-      pushSDKSocket.on(
+      pushSDKSocket!.on(
         EVENTS.CONNECT,
         (data) async {
           print(' NOTIFICATION EVENTS.CONNECT: $data');
         },
       );
       // To get messages in realtime
-      pushSDKSocket.on(EVENTS.CHAT_RECEIVED_MESSAGE, (message) {
+      pushSDKSocket!.on(EVENTS.CHAT_RECEIVED_MESSAGE, (message) {
         print('CHAT NOTIFICATION EVENTS.CHAT_RECEIVED_MESSAGE: $message');
         ref.read(conversationsProvider).onReceiveSocket(message);
       });
 
-      pushSDKSocket.on(EVENTS.SPACES, (groupInfo) {
+      pushSDKSocket!.on(EVENTS.SPACES, (groupInfo) {
         print('SPACES NOTIFICATION EVENTS.SPACES: $groupInfo');
 
         final type = (groupInfo as Map<String, dynamic>)['eventType'];
@@ -149,7 +150,7 @@ class AccountProvider extends ChangeNotifier {
       });
 
       // To get group creation or updation events
-      pushSDKSocket.on(EVENTS.CHAT_GROUPS, (groupInfo) {
+      pushSDKSocket!.on(EVENTS.CHAT_GROUPS, (groupInfo) {
         print('CHAT NOTIFICATION EVENTS.CHAT_GROUPS: $groupInfo');
 
         final type = (groupInfo as Map<String, dynamic>)['eventType'];
@@ -172,7 +173,7 @@ class AccountProvider extends ChangeNotifier {
       });
 
       // To get realtime updates for spaces
-      pushSDKSocket.on(
+      pushSDKSocket!.on(
         EVENTS.SPACES_MESSAGES,
         (data) async {
           final message = data as Map<String, dynamic>;
@@ -228,7 +229,7 @@ class AccountProvider extends ChangeNotifier {
         },
       );
 
-      pushSDKSocket.on(
+      pushSDKSocket!.on(
         EVENTS.DISCONNECT,
         (data) {
           print(' NOTIFICATION EVENTS.DISCONNECT: $data');
@@ -241,6 +242,11 @@ class AccountProvider extends ChangeNotifier {
 
   logOut() {
     pushWallet = null;
+    if (pushSDKSocket != null) {
+      pushSDKSocket!.close();
+      pushSDKSocket = null;
+    }
+
     notifyListeners();
   }
 }

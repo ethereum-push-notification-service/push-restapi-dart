@@ -1,24 +1,38 @@
 import '../../../../push_restapi_dart.dart';
 
+class GroupMemberRole {
+  static const admin = "admin";
+  static const member = "member";
+
+  static bool isValidRole(String role) {
+    return [member, admin].contains(role);
+  }
+}
+
 class ChatMemberProfile {
   String address;
   bool intent;
   String role;
-  UserV2 userInfo;
+  UserV2? userInfo;
 
   ChatMemberProfile({
     required this.address,
     required this.intent,
     required this.role,
     required this.userInfo,
-  });
+  }) {
+    if (!GroupMemberRole.isValidRole(role)) {
+      throw Exception('Invalid role');
+    }
+  }
 
   factory ChatMemberProfile.fromJson(Map<String, dynamic> json) {
     return ChatMemberProfile(
       address: json['address'],
       intent: json['intent'],
       role: json['role'],
-      userInfo: UserV2.fromJson(json['userInfo']),
+      userInfo:
+          json['userInfo'] == null ? null : UserV2.fromJson(json['userInfo']),
     );
   }
 
@@ -27,7 +41,7 @@ class ChatMemberProfile {
       'address': address,
       'intent': intent,
       'role': role,
-      'userInfo': userInfo.toJson(),
+      'userInfo': userInfo?.toJson(),
     };
   }
 }

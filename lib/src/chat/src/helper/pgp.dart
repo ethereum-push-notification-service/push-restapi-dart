@@ -26,10 +26,10 @@ Future<KeyPair> generateKeyPair() async {
   }
 }
 
-Future<String> sign(
-    {required String message,
-    required String publicKey,
-    required String privateKey}) async {
+Future<String> sign({
+  required String message,
+  required String privateKey,
+}) async {
   final signatureWithVersion = await OpenPGP.sign(message, privateKey, "");
   return removeVersionFromPublicKey(signatureWithVersion);
 }
@@ -51,11 +51,25 @@ Future<String> pgpDecrypt({
   required String cipherText,
   required String privateKeyArmored,
 }) async {
-//TODO implement pgpDecrypt
   try {
     return OpenPGP.decrypt(cipherText, privateKeyArmored, '');
   } catch (e) {
     log('pgpDecrypt Error $e');
     rethrow;
+  }
+}
+
+Future<void> verifySignature(
+    {required String messageContent,
+    required String signatureArmored,
+    required String publicKeyArmored}) async {
+  try {
+    await OpenPGP.verify(
+      signatureArmored,
+      messageContent,
+      publicKeyArmored,
+    );
+  } catch (e) {
+    log('verifySignature Error ${e.toString()}');
   }
 }

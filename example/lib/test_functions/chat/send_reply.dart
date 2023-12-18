@@ -46,14 +46,14 @@ Future<void> testSendReply() async {
   }
 
   final options = ChatSendOptions(
-    accountAddress: ethersWallet.address,
+    account: ethersWallet.address,
     pgpPrivateKey: pgpPrivateKey,
     message: ReplyMessage(
         content: NestedContent(
             type: MessageType.TEXT,
             content: "reply message sent from the Dart SDK"),
         reference: referenceLink),
-    receiverAddress: groupId,
+    to: groupId,
   );
 
   final result = await send(options);

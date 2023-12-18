@@ -68,11 +68,15 @@ class GroupInfoDTO {
       'scheduleAt': scheduleAt?.toIso8601String(),
       'scheduleEnd': scheduleEnd?.toIso8601String(),
       'groupType': groupType,
+      'rules': rules,
       'status': chatStringFromChatStatus(status),
-      'rules': rules?.toJson(),
       'meta': meta,
       'sessionKey': sessionKey,
       'encryptedSecret': encryptedSecret,
     };
+  }
+
+  static GroupInfoDTO fromGroupDTO(GroupDTO group) {
+    return GroupInfoDTO.fromJson(group.toJson());
   }
 }

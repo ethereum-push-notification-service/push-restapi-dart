@@ -28,13 +28,26 @@ abstract class Signer {
 }
 
 class ConnectedUser extends User {
-  final User user;
   final String? privateKey;
 
   ConnectedUser({
-    required this.user,
     required this.privateKey,
   });
+
+  static ConnectedUser fromUser({required User user, String? privateKey}) {
+    var connectedUser = ConnectedUser(privateKey: privateKey);
+    connectedUser.did = user.did;
+    connectedUser.profile = user.profile;
+    connectedUser.name = user.name;
+    connectedUser.about = user.about;
+    connectedUser.verificationProof = user.verificationProof;
+    connectedUser.publicKey = user.publicKey;
+    connectedUser.msgSent = user.msgSent;
+    connectedUser.maxMsgPersisted = user.maxMsgPersisted;
+    connectedUser.wallets = user.wallets;
+    connectedUser.encryptedPrivateKey = user.encryptedPrivateKey;
+    return connectedUser;
+  }
 }
 
 class User {

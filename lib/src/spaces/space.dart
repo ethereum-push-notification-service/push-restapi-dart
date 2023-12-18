@@ -9,6 +9,7 @@ export 'src/start.dart';
 export 'src/update.dart';
 export 'src/trending.dart';
 export 'src/approve.dart';
+export 'src/search.dart';
 
 export 'src/space.dart';
 export 'src/request_to_be_promoted.dart';

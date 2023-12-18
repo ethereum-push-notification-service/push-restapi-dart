@@ -23,13 +23,6 @@ Future<List<Feeds>?> chats({
   }
 
   pgpPrivateKey ??= getCachedWallet()?.pgpPrivateKey;
-  if (toDecrypt && pgpPrivateKey == null) {
-    throw Exception('Private Key is required.');
-  }
-
-  if (!isValidETHAddress(accountAddress)) {
-    throw Exception('Invalid address!');
-  }
 
   try {
     final userDID = await getUserDID(address: accountAddress);
@@ -43,8 +36,7 @@ Future<List<Feeds>?> chats({
 
     final chatList =
         (result['chats'] as List).map((e) => Feeds.fromJson(e)).toList();
-    final updatedChats = chatList;
-    addDeprecatedInfo(chatList);
+    final updatedChats = addDeprecatedInfo(chatList);
 
     final feedWithInbox = await getInboxList(
       feedsList: updatedChats,

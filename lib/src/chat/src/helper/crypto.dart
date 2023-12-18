@@ -1,6 +1,7 @@
 // ignore_for_file: constant_identifier_names
 
 import '../../../../push_restapi_dart.dart';
+import 'pgp.dart' as pgphelper;
 
 const SIG_TYPE_V2 = 'eip712v2';
 
@@ -9,27 +10,30 @@ Future<List<Feeds>> decryptFeeds({
   required User connectedUser,
   required String pgpPrivateKey,
 }) async {
-  // User? otherPeer;
-  // String?
-  //     signatureValidationPubliKey; // To do signature verification, it depends on who has sent the message
+  User? otherPeer;
+  String?
+      signatureValidationPubliKey; // To do signature verification, it depends on who has sent the message
 
   for (final feed in feeds) {
     final message = feed.msg!;
-    // bool gotOtherPeer = false;
+    bool gotOtherPeer = false;
 
     if (message.encType != 'PlainText') {
-      // if (message.fromCAIP10 != connectedUser.wallets?.split(',')[0]) {
-      //   if (!gotOtherPeer) {
-      //     otherPeer = await getUser(address: message.fromCAIP10);
-      //     gotOtherPeer = true;
-      //   }
-      //   signatureValidationPubliKey = otherPeer!.publicKey;
-      // } else {
-      //   signatureValidationPubliKey = connectedUser.publicKey;
-      // }
+      if (message.fromCAIP10 != connectedUser.wallets?.split(',')[0]) {
+        if (!gotOtherPeer) {
+          otherPeer = await getUser(address: message.fromCAIP10);
+          gotOtherPeer = true;
+        }
+        signatureValidationPubliKey = otherPeer!.publicKey;
+      } else {
+        signatureValidationPubliKey = connectedUser.publicKey;
+      }
 
       feed.msg = await decryptAndVerifyMessage(
-          message: message, privateKeyArmored: pgpPrivateKey);
+        pgpPublicKey: signatureValidationPubliKey!,
+        message: message,
+        pgpPrivateKey: pgpPrivateKey,
+      );
     }
   }
 
@@ -47,9 +51,12 @@ Future<List<SpaceFeeds>> decryptSpaceFeeds({
   for (var feed in feeds) {
     final msg = feed.msg!;
 
-    if (msg.encType == 'pgp') {
+    if (msg.encType != 'PlainText') {
       feed.msg = await decryptAndVerifyMessage(
-          message: msg, privateKeyArmored: pgpPrivateKey);
+        pgpPublicKey: connectedUser.publicKey!,
+        message: msg,
+        pgpPrivateKey: pgpPrivateKey,
+      );
       updatedFeeds.add(feed);
     } else {
       updatedFeeds.add(feed);
@@ -59,20 +66,21 @@ Future<List<SpaceFeeds>> decryptSpaceFeeds({
   return updatedFeeds;
 }
 
-Future<String> signMessageWithPGP(
-    {required String message,
-    required String publicKey,
-    required String privateKeyArmored}) async {
+Future<String> signMessageWithPGPCore({
+  required String message,
+  required String privateKeyArmored,
+}) async {
   final signature = await sign(
-      message: message, publicKey: publicKey, privateKey: privateKeyArmored);
+    message: message,
+    privateKey: privateKeyArmored,
+  );
   return signature;
 }
 
-Future<Map<String, String>> encryptAndSign({
+Future<Map<String, String>> encryptAndSignCore({
   required String plainText,
   required List<String> keys,
   required String senderPgpPrivateKey,
-  required String publicKey,
   String? secretKey,
 }) async {
   secretKey ??= generateRandomSecret(32);
@@ -83,9 +91,9 @@ Future<Map<String, String>> encryptAndSign({
   final encryptedSecret = await pgpEncrypt(plainText: secretKey, keys: keys);
 
   final signature = await sign(
-      message: cipherText,
-      privateKey: senderPgpPrivateKey,
-      publicKey: publicKey);
+    message: cipherText,
+    privateKey: senderPgpPrivateKey,
+  );
 
   return {
     'cipherText': cipherText,
@@ -96,67 +104,68 @@ Future<Map<String, String>> encryptAndSign({
   };
 }
 
-Future<IEncryptedRequest> getEncryptedRequest({
+Future<IEncryptedRequest> getEncryptedRequestCore({
   required String receiverAddress,
-  required String senderPublicKey,
-  required String senderPgpPrivateKey,
+  required ConnectedUser senderConnectedUser,
   required String message,
   required bool isGroup,
+  GroupInfoDTO? group,
   required String secretKey,
-  GroupDTO? group,
 }) async {
   if (!isGroup) {
+    if (!isValidETHAddress(receiverAddress)) {
+      throw Exception('Invalid receiver address!');
+    }
+
     User? receiverCreatedUser = await getUser(address: receiverAddress);
-    receiverCreatedUser ??=
-        await createUserEmpty(accountAddress: receiverAddress);
 
     if (receiverCreatedUser != null || receiverCreatedUser?.publicKey != null) {
-      if (!isValidETHAddress(receiverAddress)) {
-        throw Exception('Invalid receiver address!');
-      }
-
       await createUserService(
         user: receiverAddress,
         publicKey: '',
         encryptedPrivateKey: '',
       );
+
       // If the user is being created here, that means that user don't have a PGP keys. So this intent will be in plaintext
 
-      final signature = await signMessageWithPGP(
+      final signature = await signMessageWithPGPCore(
         message: message,
-        publicKey: senderPublicKey,
-        privateKeyArmored: senderPgpPrivateKey,
+        privateKeyArmored: senderConnectedUser.privateKey!,
       );
 
       return IEncryptedRequest(
-          message: message,
-          encryptionType: 'PlainText',
-          aesEncryptedSecret: '',
-          signature: signature);
+        message: message,
+        encryptionType: 'PlainText',
+        aesEncryptedSecret: '',
+        signature: signature,
+      );
     } else {
       // It's possible for a user to be created but the PGP keys still not created
 
       if (receiverCreatedUser != null &&
           !receiverCreatedUser.publicKey!
               .contains('-----BEGIN PGP PUBLIC KEY BLOCK-----')) {
-        final signature = await signMessageWithPGP(
+        final signature = await signMessageWithPGPCore(
           message: message,
-          publicKey: senderPublicKey,
-          privateKeyArmored: senderPgpPrivateKey,
+          privateKeyArmored: senderConnectedUser.privateKey!,
         );
 
         return IEncryptedRequest(
-            message: message,
-            encryptionType: 'PlainText',
-            aesEncryptedSecret: '',
-            signature: signature);
+          message: message,
+          encryptionType: 'PlainText',
+          aesEncryptedSecret: '',
+          signature: signature,
+        );
       } else {
-        final response = await encryptAndSign(
-            plainText: message,
-            keys: [receiverCreatedUser!.publicKey!, senderPublicKey],
-            senderPgpPrivateKey: senderPgpPrivateKey,
-            publicKey: senderPublicKey,
-            secretKey: secretKey);
+        final response = await encryptAndSignCore(
+          plainText: message,
+          keys: [
+            receiverCreatedUser!.publicKey!,
+            senderConnectedUser.publicKey!
+          ],
+          senderPgpPrivateKey: senderConnectedUser.privateKey!,
+          secretKey: secretKey,
+        );
 
         return IEncryptedRequest(
             message: response['cipherText']!,
@@ -167,10 +176,9 @@ Future<IEncryptedRequest> getEncryptedRequest({
     }
   } else if (group != null) {
     if (group.isPublic) {
-      final signature = await signMessageWithPGP(
+      final signature = await signMessageWithPGPCore(
         message: message,
-        publicKey: senderPublicKey,
-        privateKeyArmored: senderPgpPrivateKey,
+        privateKeyArmored: senderConnectedUser.privateKey!,
       );
 
       return IEncryptedRequest(
@@ -179,21 +187,43 @@ Future<IEncryptedRequest> getEncryptedRequest({
           aesEncryptedSecret: '',
           signature: signature);
     } else {
-      final publicKeys =
-          group.members.map((member) => member.publicKey!).toList();
+      // Private Groups
 
-      final response = await encryptAndSign(
+      // 1. Private Groups with session keys
+      if (group.sessionKey != null && group.encryptedSecret != null) {
+        final cipherText = await aesEncrypt(
+          plainText: message,
+          secretKey: secretKey,
+        );
+
+        final signature = await pgphelper.sign(
+          message: cipherText,
+          privateKey: senderConnectedUser.privateKey!,
+        );
+        return IEncryptedRequest(
+          message: cipherText,
+          encryptionType: 'pgpv1:group',
+          aesEncryptedSecret: '',
+          signature: signature,
+        );
+      } else {
+        final members =
+            await getAllGroupMembersPublicKeys(chatId: group.chatId);
+        final publicKeys = members.map((e) => e.publicKey).toList();
+
+        final response = await encryptAndSignCore(
           plainText: message,
           keys: publicKeys,
-          senderPgpPrivateKey: senderPgpPrivateKey,
-          publicKey: senderPublicKey,
-          secretKey: secretKey);
+          senderPgpPrivateKey: senderConnectedUser.privateKey!,
+          secretKey: secretKey,
+        );
 
-      return IEncryptedRequest(
-          message: response['cipherText']!,
-          encryptionType: 'pgp',
-          aesEncryptedSecret: response['encryptedSecret']!,
-          signature: response['signature']!);
+        return IEncryptedRequest(
+            message: response['cipherText']!,
+            encryptionType: 'pgp',
+            aesEncryptedSecret: response['encryptedSecret']!,
+            signature: response['signature']!);
+      }
     }
   } else {
     throw Exception('Error in encryption');

@@ -36,6 +36,25 @@ class GroupMembersDialog extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: MaterialButton(
+                onPressed: () {
+                  pop();
+                  pushScreen(EditGroupInfoScreen());
+                },
+                color: pushColor,
+                textColor: Colors.white,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.settings),
+                    SizedBox(width: 4),
+                    KText('Edit Group Info'),
+                  ],
+                ),
+              ),
+            ),
             TabBar(tabs: [
               Tab(text: 'Admin'),
               Tab(text: 'Members'),
@@ -67,7 +86,7 @@ class GroupAdminsView extends StatelessWidget {
     required this.chatId,
   });
 
-  final List<MemberDTO> admins;
+  final List<ChatMemberProfile> admins;
   final bool isUserAdmin;
   final String? chatId;
 
@@ -95,9 +114,10 @@ class GroupAdminsView extends StatelessWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ProfileImage(
-                            imageUrl: item.image,
+                          BlockiesAvatar(
+                            address: item.address,
                             size: 48,
+                            radius: 10,
                           ),
                           SizedBox(width: 16),
                           Expanded(
@@ -105,7 +125,7 @@ class GroupAdminsView extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text('${item.wallet}'),
+                                Text('${item.address}'),
                                 Align(
                                   alignment: Alignment.topRight,
                                   child: MemberActionWidget(
@@ -153,7 +173,7 @@ class GroupMembersView extends StatelessWidget {
     required this.chatId,
   });
 
-  final List<MemberDTO> members;
+  final List<ChatMemberProfile> members;
   final bool isUserAdmin;
   final String? chatId;
 
@@ -182,9 +202,10 @@ class GroupMembersView extends StatelessWidget {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ProfileImage(
-                              imageUrl: item.image,
+                            BlockiesAvatar(
+                              address: item.address,
                               size: 48,
+                              radius: 10,
                             ),
                             SizedBox(width: 16),
                             Expanded(
@@ -192,7 +213,7 @@ class GroupMembersView extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text('${item.wallet}'),
+                                  Text('${item.address}'),
                                   MemberActionWidget(
                                     item: item,
                                     isRemoveAdmin: false,
@@ -239,7 +260,7 @@ class MemberActionWidget extends ConsumerStatefulWidget {
     required this.chatId,
   });
 
-  final MemberDTO item;
+  final ChatMemberProfile item;
   final bool isUserAdmin;
   final bool isRemoveAdmin;
   final String? chatId;
@@ -252,7 +273,7 @@ class _MemberActionWidgetState extends ConsumerState<MemberActionWidget> {
   @override
   Widget build(BuildContext context) {
     final currentUser = ref.read(accountProvider).pushWallet?.address;
-    if (widget.item.wallet == walletToPCAIP10(currentUser!)) {
+    if (widget.item.address == walletToPCAIP10(currentUser!)) {
       return Container(
         padding: EdgeInsets.all(6),
         decoration: BoxDecoration(
@@ -306,11 +327,11 @@ class _MemberActionWidgetState extends ConsumerState<MemberActionWidget> {
     showLoadingDialog();
     removeMembers(
       chatId: widget.chatId!,
-      members: [widget.item.wallet],
+      members: [widget.item.address],
     ).then((value) {
       pop();
 
-      ref.read(chatRoomProvider).onRefreshRoom(groupData: value);
+      ref.read(chatRoomProvider).getLatestGroupMembers();
       showMyDialog(
         context: context,
         title: 'Remove User',
@@ -325,11 +346,11 @@ class _MemberActionWidgetState extends ConsumerState<MemberActionWidget> {
     showLoadingDialog();
     removeAdmins(
       chatId: widget.chatId!,
-      admins: [widget.item.wallet],
+      admins: [widget.item.address],
     ).then((value) {
       pop();
 
-      ref.read(chatRoomProvider).onRefreshRoom(groupData: value);
+      ref.read(chatRoomProvider).getLatestGroupMembers();
       showMyDialog(
         context: context,
         title: 'Remove User',
@@ -344,15 +365,15 @@ class _MemberActionWidgetState extends ConsumerState<MemberActionWidget> {
     showLoadingDialog();
     removeAdmins(
       chatId: widget.chatId!,
-      admins: [widget.item.wallet],
+      admins: [widget.item.address],
     ).then((value) {
       addMembers(
         chatId: widget.chatId!,
-        members: [widget.item.wallet],
+        members: [widget.item.address],
       ).then((value) {
         pop();
 
-        ref.read(chatRoomProvider).onRefreshRoom(groupData: value);
+        ref.read(chatRoomProvider).getLatestGroupMembers();
         showMyDialog(
           context: context,
           title: 'Demote to member',
@@ -368,11 +389,11 @@ class _MemberActionWidgetState extends ConsumerState<MemberActionWidget> {
     showLoadingDialog();
     removeMembers(
       chatId: widget.chatId!,
-      members: [widget.item.wallet],
+      members: [widget.item.address],
     ).then((value) {
-      addAdmins(chatId: widget.chatId!, admins: [widget.item.wallet])
+      addAdmins(chatId: widget.chatId!, admins: [widget.item.address])
           .then((value) {
-        ref.read(chatRoomProvider).onRefreshRoom(groupData: value);
+        ref.read(chatRoomProvider).getLatestGroupMembers();
         pop();
         showMyDialog(
           context: context,
@@ -394,7 +415,7 @@ class GroupPendingMembersView extends StatelessWidget {
     required this.chatId,
   });
 
-  final List<MemberDTO> pendingMembers;
+  final List<ChatMemberProfile> pendingMembers;
   final bool isUserAdmin;
   final String? chatId;
 
@@ -411,8 +432,12 @@ class GroupPendingMembersView extends StatelessWidget {
             itemBuilder: (context, index) {
               final item = pendingMembers[index];
               return ListTile(
-                leading: ProfileImage(imageUrl: item.image),
-                title: Text('${item.wallet}'),
+                leading: BlockiesAvatar(
+                  address: item.address,
+                  size: 48,
+                  radius: 10,
+                ),
+                title: Text('${item.address}'),
               );
             },
           );

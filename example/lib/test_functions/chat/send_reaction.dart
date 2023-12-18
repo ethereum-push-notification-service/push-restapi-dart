@@ -46,11 +46,11 @@ Future<void> testSendReaction() async {
   }
 
   final options = ChatSendOptions(
-    accountAddress: ethersWallet.address,
+    account: ethersWallet.address,
     pgpPrivateKey: pgpPrivateKey,
     message: ReactionMessage(
         content: CHAT.REACTION_THUMBSUP, reference: referenceLink),
-    receiverAddress: groupId,
+    to: groupId,
   );
 
   final result = await send(options);

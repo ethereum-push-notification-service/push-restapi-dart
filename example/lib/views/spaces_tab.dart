@@ -20,6 +20,16 @@ class _SpacesTabState extends ConsumerState<SpacesTab> {
           children: [
             InkWell(
               onTap: () {
+                pushScreen(SearchSpacesScreen());
+              },
+              child: Icon(
+                Icons.search,
+                color: pushColor,
+              ),
+            ),
+            Spacer(),
+            InkWell(
+              onTap: () {
                 pushScreen(CreateSpaceScreen());
               },
               child: Container(

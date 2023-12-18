@@ -16,7 +16,7 @@ class RequestsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  loadRequests() async {
+  Future loadRequests() async {
     setBusy(true);
     _requests = await requests(toDecrypt: true);
 

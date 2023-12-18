@@ -18,6 +18,8 @@ class Message {
   String encryptedSecret;
   bool? deprecated;
   String? deprecatedCode;
+  String? verificationProof;
+  String? sessionKey;
 
   String get displayText {
     var content = '';
@@ -64,6 +66,8 @@ class Message {
     required this.encryptedSecret,
     this.deprecated,
     this.deprecatedCode,
+    this.verificationProof,
+    this.sessionKey,
   });
 
   factory Message.fromJson(Map<String, dynamic> json) {
@@ -83,6 +87,8 @@ class Message {
       encryptedSecret: json['encryptedSecret'],
       deprecated: json['deprecated'],
       deprecatedCode: json['deprecatedCode'],
+      verificationProof: json['verificationProof'],
+      sessionKey: json['sessionKey'],
     );
   }
 
@@ -103,6 +109,8 @@ class Message {
     data['encryptedSecret'] = encryptedSecret;
     data['deprecated'] = deprecated;
     data['deprecatedCode'] = deprecatedCode;
+    data['verificationProof'] = verificationProof;
+    data['sessionKey'] = sessionKey;
     return data;
   }
 }

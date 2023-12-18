@@ -31,11 +31,10 @@ Future<void> testSendToGroup() async {
   print('pgpPrivateKey: $pgpPrivateKey');
 
   final options = ChatSendOptions(
-    accountAddress: ethersWallet.address,
+    account: ethersWallet.address,
     pgpPrivateKey: pgpPrivateKey,
     messageContent: 'Testing send() from Dart SDK for group chat',
-    receiverAddress:
-        '83e6aaf9fb44c5929ea965d2b0c4e98fd8b6094b72f51989123f81e6cf69f298',
+    to: '83e6aaf9fb44c5929ea965d2b0c4e98fd8b6094b72f51989123f81e6cf69f298',
   );
 
   final result = await send(options);

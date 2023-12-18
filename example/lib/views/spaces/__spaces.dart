@@ -17,3 +17,4 @@ export 'popular/popular_space_provider.dart';
 export 'popular/popular_tab.dart';
 
 export 'your_spaces/for_you_tab.dart';
+export 'search_spaces.screen.dart';

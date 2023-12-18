@@ -31,10 +31,10 @@ void testSend() async {
   print('pgpPrivateKey: $pgpPrivateKey');
 
   final options = ChatSendOptions(
-    accountAddress: ethersWallet.address,
+    account: ethersWallet.address,
     pgpPrivateKey: pgpPrivateKey,
     messageContent: 'Testing send() from Dart SDK for w2w chat',
-    receiverAddress: '0x69e666767Ba3a661369e1e2F572EdE7ADC926029',
+    to: '0x69e666767Ba3a661369e1e2F572EdE7ADC926029',
   );
 
   final result = await send(options);

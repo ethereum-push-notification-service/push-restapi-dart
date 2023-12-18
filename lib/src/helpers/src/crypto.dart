@@ -237,70 +237,92 @@ List<int> generateRandomBytes(int count) {
   return List.generate(count, (_) => _rand.nextInt(256));
 }
 
+/// Decrypts and verifies a Push Chat Message
+///
+/// @param message encrypted chat message
+///
+/// @param pgpPublicKey pgp public key of signer of message - used for verification
+///
+/// @param pgpPrivateKey pgp private key of receiver - used for decryption
 Future<Message> decryptAndVerifyMessage({
   required Message message,
-  required String privateKeyArmored,
+  required String pgpPublicKey,
+  required String pgpPrivateKey,
 }) async {
-  // log('decryptAndVerifyMessage - message ${message.toJson()} \n privateKeyArmored $privateKeyArmored');
+  /**
+   * VERIFICATION
+   * If verification proof is present then check that else check messageContent Signature
+   */
 
-  // TODO: Complete message verification
-  // if (message.verificationProof != null &&
-  //     message.verificationProof.split(':')[0] == 'pgpv2') {
-  //   Map<String, dynamic> bodyToBeHashed = {
-  //     'fromDID': message.fromDID,
-  //     'toDID': message.fromDID,
-  //     'fromCAIP10': message.fromCAIP10,
-  //     'toCAIP10': message.toCAIP10,
-  //     'messageObj': message.messageObj,
-  //     'messageType': message.messageType,
-  //     'encType': message.encType,
-  //     'encryptedSecret': message.encryptedSecret,
-  //   };
-  //   String hash = sha256.convert(utf8.encode(jsonEncode(bodyToBeHashed))).toString();
-  //   String signature = message.verificationProof.split(':')[1];
-  //   try {
-  //     await verifySignature(
-  //       messageContent: hash,
-  //       signatureArmored: signature,
-  //       publicKeyArmored: pgpPublicKey,
-  //     );
-  //   } catch (err) {
-  //     // Handle the verification error as needed.
-  //   }
-  // } else {
-  //   if (message.link == null) {
-  //     Map<String, dynamic> bodyToBeHashed = {
-  //       'fromDID': message.fromDID,
-  //       'toDID': message.toDID,
-  //       'messageContent': message.messageContent,
-  //       'messageType': message.messageType,
-  //     };
-  //     String hash = sha256.convert(utf8.encode(jsonEncode(bodyToBeHashed))).toString();
-  //     try {
-  //       await verifySignature(
-  //         messageContent: hash,
-  //         signatureArmored: message.signature,
-  //         publicKeyArmored: pgpPublicKey,
-  //       );
-  //     } catch (err) {
-  //       await verifySignature(
-  //         messageContent: message.messageContent,
-  //         signatureArmored: message.signature,
-  //         publicKeyArmored: pgpPublicKey,
-  //       );
-  //     }
-  //   } else {
-  //     try {
-  //       await verifySignature(
-  //         messageContent: message.messageContent,
-  //         signatureArmored: message.signature,
-  //         publicKeyArmored: pgpPublicKey,
-  //       );
-  //     } catch (err) {
-  //       // Handle the verification error as needed.
-  //     }
-  //   }
-  // }
+  if (message.verificationProof != null &&
+      message.verificationProof!.split(':')[0] == 'pgpv2') {
+    Map<String, dynamic> bodyToBeHashed = {
+      'fromDID': message.fromDID,
+      'toDID': message.fromDID,
+      'fromCAIP10': message.fromCAIP10,
+      'toCAIP10': message.toCAIP10,
+      'messageObj': message.messageObj,
+      'messageType': message.messageType,
+      'encType': message.encType,
+      'encryptedSecret': message.encryptedSecret,
+    };
+    String hash = generateHash(bodyToBeHashed);
+    String signature = message.verificationProof!.split(':')[1];
+    await verifySignature(
+      messageContent: hash,
+      signatureArmored: signature,
+      publicKeyArmored: pgpPublicKey,
+    );
+  } else if (message.verificationProof != null &&
+      message.verificationProof!.split(':')[0] == 'pgpv3') {
+    final bodyToBeHashed = {
+      'fromDID': message.fromDID,
+      'toDID': message.fromDID,
+      'fromCAIP10': message.fromCAIP10,
+      'toCAIP10': message.toCAIP10,
+      'messageObj': message.messageObj,
+      'messageType': message.messageType,
+      'encType': message.encType,
+      'sessionKey': message.sessionKey,
+      'encryptedSecret': message.encryptedSecret,
+    };
+    String hash = generateHash(bodyToBeHashed);
+    String signature = message.verificationProof!.split(':')[1];
+    await verifySignature(
+      messageContent: hash,
+      signatureArmored: signature,
+      publicKeyArmored: pgpPublicKey,
+    );
+  } else {
+    if (message.link == null) {
+      Map<String, dynamic> bodyToBeHashed = {
+        'fromDID': message.fromDID,
+        'toDID': message.toDID,
+        'messageContent': message.messageContent,
+        'messageType': message.messageType,
+      };
+      String hash = generateHash(bodyToBeHashed);
+      try {
+        await verifySignature(
+          messageContent: hash,
+          signatureArmored: message.signature,
+          publicKeyArmored: pgpPublicKey,
+        );
+      } catch (e) {
+        await verifySignature(
+          messageContent: message.messageContent,
+          signatureArmored: message.signature,
+          publicKeyArmored: pgpPublicKey,
+        );
+      }
+    } else {
+      await verifySignature(
+        messageContent: message.messageContent,
+        signatureArmored: message.signature,
+        publicKeyArmored: pgpPrivateKey,
+      );
+    }
+  }
 
   /**
    * DECRYPTION
@@ -308,9 +330,18 @@ Future<Message> decryptAndVerifyMessage({
    * 2. Decrypt messageObj.message, messageObj.meta , messageContent
    */
   try {
+    /**
+     * Get encryptedSecret from Backend using sessionKey for this encryption type
+     */
+    if (message.encType == 'pgpv1:group') {
+      message.encryptedSecret = await getEncryptedSecret(
+        sessionKey: message.sessionKey!,
+      );
+    }
+
     String secretKey = await pgpDecrypt(
       cipherText: message.encryptedSecret,
-      privateKeyArmored: privateKeyArmored,
+      privateKeyArmored: pgpPrivateKey,
     );
 
     if (message.messageObj != null) {

@@ -61,6 +61,27 @@ SpaceDTO groupDtoToSpaceDto(GroupDTO groupDto) {
   );
 }
 
+SpaceDTO groupInfoDtoToSpaceDto(GroupInfoDTO groupDto) {
+  return SpaceDTO(
+    members: [],
+    pendingMembers: [],
+    contractAddressERC20: null,
+    numberOfERC20: -1,
+    numberOfNFTTokens: -1,
+    verificationProof: '',
+    spaceImage: groupDto.groupImage,
+    spaceName: groupDto.groupName,
+    isPublic: groupDto.isPublic,
+    spaceDescription: groupDto.groupDescription,
+    spaceCreator: groupDto.groupCreator,
+    spaceId: groupDto.chatId,
+    scheduleAt: groupDto.scheduleAt,
+    scheduleEnd: groupDto.scheduleEnd,
+    status: groupDto.status,
+    meta: groupDto.meta,
+  );
+}
+
 List<String> convertToWalletAddressList(List<MemberDTO> memberList) {
   return memberList.map((member) => member.wallet).toList();
 }

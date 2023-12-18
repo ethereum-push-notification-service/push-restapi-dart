@@ -17,7 +17,7 @@ class SpaceRequestsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-Future  loadRequests() async {
+  Future loadRequests() async {
     setBusy(true);
     _requests = await spaceRequests(
       toDecrypt: true,

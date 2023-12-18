@@ -52,9 +52,7 @@ class _ChatRequestScreenState extends ConsumerState<ChatRequestScreen> {
 
               return ListTile(
                 onTap: () {
-                  // pushScreen(ChatRoomScreen(room: item));
                   onAccetRequests(item.chatId!);
-                  // onAccetRequests(item.intentSentBy!);
                 },
                 leading: ProfileImage(imageUrl: image),
                 title: Text(

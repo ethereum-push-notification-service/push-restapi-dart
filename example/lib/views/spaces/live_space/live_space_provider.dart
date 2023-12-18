@@ -84,9 +84,9 @@ class LiveSpaceProvider extends PushSpaceNotifier {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           TextButton(
-              onPressed: ()async {
+              onPressed: () async {
                 flushBar.dismiss();
-               await rejectPromotionInvite();
+                await rejectPromotionInvite();
               },
               child: KText(
                 'Reject',

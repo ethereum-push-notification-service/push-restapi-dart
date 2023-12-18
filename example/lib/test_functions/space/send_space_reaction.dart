@@ -35,11 +35,10 @@ Future<void> testSendSpaceReaction() async {
       content: content);
 
   final options = ChatSendOptions(
-    accountAddress: ethersWallet.address,
+    account: ethersWallet.address,
     pgpPrivateKey: pgpPrivateKey,
     message: reactionMessage,
-    receiverAddress:
-        'spaces:cff80fae9b898b9f5d679bfa7ef4dfcb7d31b9d1c12e032f4ec6d84a575e62cb',
+    to: 'spaces:cff80fae9b898b9f5d679bfa7ef4dfcb7d31b9d1c12e032f4ec6d84a575e62cb',
   );
 
   final result = await send(options);

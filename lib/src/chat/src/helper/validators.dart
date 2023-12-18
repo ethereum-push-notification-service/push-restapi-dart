@@ -100,3 +100,67 @@ void updateGroupRequestValidator(
     throw Exception('Invalid address field!');
   }
 }
+
+void validateGroupMemberUpdateOptions({
+  required String chatId,
+  required UpsertDTO upsert,
+  required List<String> remove,
+}) {
+  if (chatId.isEmpty) {
+    throw Exception('chatId cannot be null or empty');
+  }
+
+  // Validating upsert object
+  final allowedRoles = ['members', 'admins'];
+
+  upsert.toJson().forEach((role, value) {
+    if (!allowedRoles.contains(role)) {
+      throw Exception(
+          'Invalid role: $role. Allowed roles are ${allowedRoles.join(', ')}.');
+    }
+
+    if (value != null && value is List<String> && value.length > 1000) {
+      throw Exception('$role array cannot have more than 1000 addresses.');
+    }
+
+    value.forEach((address) => {
+          if (!isValidETHAddress(address))
+            {throw Exception('Invalid address found in $role list.')}
+        });
+  });
+
+  // Validating remove array
+  if (remove.length > 1000) {
+    throw Exception('Remove array cannot have more than 1000 addresses.');
+  }
+  for (var address in remove) {
+    if (!isValidETHAddress(address)) {
+      throw Exception('Invalid address found in remove list.');
+    }
+  }
+}
+
+Future validateSendOptions(ComputedOptions options) async {
+  if (options.account == null && options.signer == null) {
+    throw Exception('At least one from account or signer is necessary!');
+  }
+
+  final wallet = getWallet(address: options.account, signer: options.signer);
+
+  if (!isValidETHAddress(wallet.address!)) {
+    throw Exception('Invalid address ${wallet.address!}');
+  }
+
+  if (options.pgpPrivateKey == null && options.signer == null) {
+    throw Exception(
+        "Unable to decrypt keys. Please ensure that either 'signer' or 'pgpPrivateKey' is properly defined.");
+  }
+
+  if (options.messageType != MessageType.COMPOSITE &&
+      options.messageType != MessageType.REPLY &&
+      options.messageObj?.content.isEmpty) {
+    throw Exception('Cannot send empty message');
+  }
+
+  //TODO implement validateMessageObj
+}

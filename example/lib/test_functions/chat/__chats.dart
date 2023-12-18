@@ -24,3 +24,6 @@ export 'get_all_group_members.dart';
 export 'get_group_member_status.dart';
 export 'get_group_members_public_keys.dart';
 export 'get_all_group_members_public_keys.dart';
+export 'update_group_config.dart';
+export 'update_group_profile.dart';
+export 'update_group_members.dart';

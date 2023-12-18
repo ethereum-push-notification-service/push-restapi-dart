@@ -290,7 +290,8 @@ class _SpaceListernersTab extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16)),
               onPressed: () {
                 pop();
-                Get.bottomSheet(SendSpaceInviteDialog(spaceId: spaceId, isSpeaker: false));
+                Get.bottomSheet(
+                    SendSpaceInviteDialog(spaceId: spaceId, isSpeaker: false));
               },
               textColor: Colors.white,
               child: Center(child: Text('Send Space Invite')),

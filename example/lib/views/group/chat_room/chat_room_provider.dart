@@ -39,15 +39,32 @@ class ChatRoomProvider extends ChangeNotifier {
     final chatId = room.chatId!;
     _room = room;
     _messageList = _localMessagesCache[chatId] ?? [];
+    _groupInfoDTO = room.groupInformation != null
+        ? GroupInfoDTO.fromGroupDTO(room.groupInformation!)
+        : null;
     _currentChatid = chatId;
     controller.clear();
 
-    notifyListeners();
     getRoomMessages();
 
-    if (room.groupInformation != null) {
-      getLatesGroupInfo();
+    if (_groupInfoDTO != null) {
+      getLatestGroupInfo();
+      _members = (room.groupInformation?.members ?? [])
+          .map(
+            (e) => ChatMemberProfile(
+              address: e.wallet,
+              intent: false,
+              role: e.isAdmin ? GroupMemberRole.admin : GroupMemberRole.member,
+              userInfo: null,
+            ),
+          )
+          .toList();
+
+      getLatestGroupMembers();
+    } else {
+      _members.clear();
     }
+    notifyListeners();
   }
 
   Message? replyTo;
@@ -56,17 +73,18 @@ class ChatRoomProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  onRefreshRoom({
-    GroupDTO? groupData,
+  Future onRefreshRoom({
+    GroupInfoDTO? groupData,
   }) async {
-    if (groupData?.chatId == _currentChatid) {
-      _room.groupInformation = groupData;
+    if (groupData != null && groupData.chatId == _currentChatid) {
+      _groupInfoDTO = GroupInfoDTO.fromJson(groupData.toJson());
       notifyListeners();
     }
 
     getRoomMessages();
 
-    getLatesGroupInfo();
+    getLatestGroupInfo();
+    getLatestGroupMembers();
   }
 
   Future getRoomMessages() async {
@@ -142,7 +160,8 @@ class ChatRoomProvider extends ChangeNotifier {
 
       if (selectedFile != null && messageType == MessageType.IMAGE) {
         final img = base64Encode(selectedFile!.readAsBytesSync());
-        attachmentContent = jsonEncode({'content': img});
+        attachmentContent =
+            jsonEncode({'content': 'data:image/png;base64,$img'});
         messageAttachment = ImageMessage(
           content: img,
           name: selectedFile?.uri.pathSegments.last,
@@ -155,14 +174,14 @@ class ChatRoomProvider extends ChangeNotifier {
         options = ChatSendOptions(
           message: messageAttachment,
           messageContent: content,
-          receiverAddress: currentChatId,
+          to: currentChatId,
         );
       } else {
         options = ChatSendOptions(
           message: ReplyMessage(
               content: NestedContent(type: messageType, content: content),
               reference: jsonEncode(replyTo!.toJson())),
-          receiverAddress: currentChatId,
+          to: currentChatId,
         );
       }
 
@@ -195,7 +214,6 @@ class ChatRoomProvider extends ChangeNotifier {
       updateSending(true);
       final message = await send(options);
       updateSending(false);
-      print('onSendMessage...5..after send..${message?.toJson()}');
       if (message != null) {
         getRoomMessages();
       }
@@ -205,35 +223,38 @@ class ChatRoomProvider extends ChangeNotifier {
     }
   }
 
-  Future getLatesGroupInfo() async {
-    final result = await getGroup(chatId: _currentChatid);
-    if (result != null) {
-      _room.groupInformation = result;
-      notifyListeners();
-    }
+  GroupInfoDTO? _groupInfoDTO;
+
+  Future getLatestGroupInfo() async {
+    _groupInfoDTO = await getGroupInfo(chatId: _currentChatid);
+    notifyListeners();
   }
 
-  GroupDTO? get groupInformation => _room.groupInformation;
-
-  List<MemberDTO> get admins {
-    return groupInformation?.members
-            .where((element) => element.isAdmin == true)
-            .toList() ??
-        [];
+  Future getLatestGroupMembers() async {
+    _members = await getGroupMembers(chatId: _currentChatid);
+    notifyListeners();
   }
 
-  List<MemberDTO> get members =>
-      groupInformation?.members
-          .where((element) => element.isAdmin != true)
-          .toList() ??
-      [];
+  GroupInfoDTO? get groupInformation => _groupInfoDTO;
 
-  List<MemberDTO> get pendingMembers => groupInformation?.pendingMembers ?? [];
+  List<ChatMemberProfile> _members = [];
+  List<ChatMemberProfile> get admins {
+    return _members
+        .where((element) => element.role == GroupMemberRole.admin)
+        .toList();
+  }
+
+  List<ChatMemberProfile> get members => _members
+      .where((element) => element.role == GroupMemberRole.member)
+      .toList();
+
+  List<ChatMemberProfile> get pendingMembers =>
+      _members.where((element) => !element.intent).toList();
 
   String get currentUser => ref.read(accountProvider).pushWallet?.address ?? '';
 
   bool get isUserAdmin =>
-      admins.map((e) => e.wallet).contains(walletToPCAIP10(currentUser));
+      admins.map((e) => e.address).contains(walletToPCAIP10(currentUser));
 
   File? _selectedFile;
   File? get selectedFile => _selectedFile;

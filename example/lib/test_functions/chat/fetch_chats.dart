@@ -25,10 +25,10 @@ testAES() {
 
 testSign() async {
   try {
-    final result = await signMessageWithPGP(
-        message: 'message',
-        publicKey: '',
-        privateKeyArmored: 'privateKeyArmored');
+    final result = await signMessageWithPGPCore(
+      message: 'message',
+      privateKeyArmored: 'privateKeyArmored',
+    );
 
     print('testSign: result $result');
   } catch (e) {

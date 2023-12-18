@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import '../../../push_restapi_dart.dart';
 
-Future<User?> createUser({
+Future<User> createUser({
   required Signer signer,
   String version = ENCRYPTION_TYPE.PGP_V3,
   required Function(ProgressHookType) progressHook,
@@ -48,10 +48,8 @@ Future<User?> createUser({
 
   final result = await http.post(path: '/v2/users', data: data);
 
-  if (result == null) {
-    return null;
-  } else if (result is String) {
-    throw Exception(result);
+  if (result == null || result is String) {
+    throw Exception(result ?? 'Unable to create account for $address');
   } else {
     return User.fromJson(result);
   }
@@ -71,10 +69,8 @@ Future<User?> createUserEmpty({required String accountAddress}) async {
 
   final result = await http.post(path: '/v2/users', data: data);
 
-  if (result == null) {
-    return null;
-  } else if (result is String) {
-    throw Exception(result);
+  if (result == null || result is String) {
+    throw Exception(result ?? 'Unable to create account for $accountAddress');
   } else {
     return User.fromJson(result);
   }

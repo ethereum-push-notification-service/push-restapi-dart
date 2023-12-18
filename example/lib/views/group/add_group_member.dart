@@ -85,7 +85,7 @@ class _AddGroupMemberState extends ConsumerState<AddGroupMember> {
           message: 'Failed to add $address to group',
         );
       } else {
-        ref.read(chatRoomProvider).onRefreshRoom(groupData: result);
+        ref.read(chatRoomProvider).getLatestGroupMembers();
         controller.clear();
         setState(() {});
         showMyDialog(

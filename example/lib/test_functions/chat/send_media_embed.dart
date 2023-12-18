@@ -28,14 +28,13 @@ Future<void> testSendMediaEmbed() async {
   }
 
   final options = ChatSendOptions(
-    accountAddress: ethersWallet.address,
+    account: ethersWallet.address,
     pgpPrivateKey: pgpPrivateKey,
     message: SendMessage(
         type: MessageType.MEDIA_EMBED,
         content:
             "https://media2.giphy.com/media/p0L1rezLH2Tja/giphy.gif?cid=c918c0ff667b3vbiu4i4e5d1t9sqssx8uvy10reprq8yds23&ep=v1_gifs_trending&rid=giphy.gif&ct=g"),
-    receiverAddress:
-        '83e6aaf9fb44c5929ea965d2b0c4e98fd8b6094b72f51989123f81e6cf69f298',
+    to: '83e6aaf9fb44c5929ea965d2b0c4e98fd8b6094b72f51989123f81e6cf69f298',
   );
 
   final result = await send(options);

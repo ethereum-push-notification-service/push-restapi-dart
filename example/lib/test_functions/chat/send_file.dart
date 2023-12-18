@@ -28,14 +28,14 @@ Future<void> testSendFile() async {
   }
 
   final options = ChatSendOptions(
-    accountAddress: ethersWallet.address,
+    account: ethersWallet.address,
     pgpPrivateKey: pgpPrivateKey,
     message: FileMessage(
-        content: "data:text/plain;base64,VmVuZ2VhbmNlMjM0NUAjJCU=",
-        name: "something.txt",
-        type: "text/plain"),
-    receiverAddress:
-        '83e6aaf9fb44c5929ea965d2b0c4e98fd8b6094b72f51989123f81e6cf69f298',
+      content: "data:text/plain;base64,VmVuZ2VhbmNlMjM0NUAjJCU=",
+      name: "something.txt",
+      type: "text/plain",
+    ),
+    to: '83e6aaf9fb44c5929ea965d2b0c4e98fd8b6094b72f51989123f81e6cf69f298',
   );
 
   final result = await send(options);

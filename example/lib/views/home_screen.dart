@@ -145,3 +145,26 @@ class NavItem {
     this.icon,
   });
 }
+
+class BlockiesAvatar extends StatelessWidget {
+  const BlockiesAvatar(
+      {super.key, required this.address, this.size = 60, this.radius = 12});
+  final String address;
+  final double size;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: size,
+      width: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: Blockies(seed: '${address}'),
+      ),
+    );
+  }
+}

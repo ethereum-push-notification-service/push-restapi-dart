@@ -30,7 +30,10 @@ Future sendLiveSpaceData({
         );
 
   final options = ChatSendOptions(
-      messageType: messageType, message: message, receiverAddress: spaceId);
+    messageType: messageType,
+    message: message,
+    to: spaceId,
+  );
 
   return send(options);
 }

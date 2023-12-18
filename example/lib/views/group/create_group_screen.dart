@@ -3,14 +3,14 @@ import 'package:push_restapi_dart/push_restapi_dart.dart';
 
 import '../../__lib.dart';
 
-class CreateGroupScreen extends StatefulWidget {
+class CreateGroupScreen extends ConsumerStatefulWidget {
   const CreateGroupScreen({super.key});
 
   @override
-  State<CreateGroupScreen> createState() => _CreateGroupScreenState();
+  ConsumerState<CreateGroupScreen> createState() => _CreateGroupScreenState();
 }
 
-class _CreateGroupScreenState extends State<CreateGroupScreen> {
+class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
   TextEditingController nameController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController memberController = TextEditingController();
@@ -138,6 +138,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
         showMyDialog(
             context: context, title: 'Error', message: 'Group not created');
       } else {
+        ref.read(conversationsProvider).loadChats();
         showMyDialog(
           context: context,
           title: 'Success',
