@@ -30,10 +30,12 @@ getBatch({
     final output = [];
     for (var item in result['users']) {
       var user = User.fromJson(item);
-      user.publicKey = verifyPGPPublicKey(
+      user.publicKey = verifyProfileKeys(
         encryptedPrivateKey: user.encryptedPrivateKey!,
         publicKey: user.publicKey!,
         did: user.did!,
+        caip10: user.wallets!,
+        verificationProof: user.verificationProof!,
       );
 
       user = await populateDeprecatedUser(user: user);

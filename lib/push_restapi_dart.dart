@@ -14,4 +14,6 @@ export 'src/payloads/payloads.dart';
 export 'src/video/video.dart';
 export 'src/sockets/sockets.dart';
 
+export 'src/pushapi/__pushapi.dart';
+
 export 'src/main.dart';

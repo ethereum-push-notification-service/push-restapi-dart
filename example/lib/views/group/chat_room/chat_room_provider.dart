@@ -231,7 +231,8 @@ class ChatRoomProvider extends ChangeNotifier {
   }
 
   Future getLatestGroupMembers() async {
-    _members = await getGroupMembers(chatId: _currentChatid);
+    _members = await getGroupMembers(
+        options: FetchChatGroupInfoType(chatId: _currentChatid));
     notifyListeners();
   }
 

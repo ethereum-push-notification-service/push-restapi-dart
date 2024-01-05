@@ -107,12 +107,13 @@ class _EditGroupInfoScreenState extends ConsumerState<EditGroupInfoScreen> {
     try {
       showLoadingDialog();
       await push.updateGroupProfile(
+          options: ChatUpdateGroupProfileType(
         chatId: groupInfo!.chatId,
         groupName: nameController.text.trim(),
         groupImage:
-            selectedFile != null ? composeImage() : groupInfo!.groupImage,
+            selectedFile != null ? composeImage() : groupInfo!.groupImage!,
         groupDescription: descriptionController.text.trim(),
-      );
+      ));
 
       await ref.read(chatRoomProvider).getLatestGroupInfo();
       pop();

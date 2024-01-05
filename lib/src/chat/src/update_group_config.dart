@@ -1,40 +1,55 @@
 import '../../../push_restapi_dart.dart';
 
+class ChatUpdateConfigProfileType {
+  String? account;
+  Signer? signer;
+  String chatId;
+  String? meta;
+  DateTime? scheduleAt;
+  DateTime? scheduleEnd;
+  ChatStatus? status;
+  String? pgpPrivateKey;
+
+  ChatUpdateConfigProfileType({
+    this.account,
+    this.signer,
+    required this.chatId,
+    this.meta,
+    this.scheduleAt,
+    this.scheduleEnd,
+    this.status,
+    this.pgpPrivateKey,
+  });
+}
+
 Future<GroupDTO> updateGroupConfig({
-  String? account,
-  Signer? signer,
-  required String chatId,
-  String? meta,
-  DateTime? scheduleAt,
-  DateTime? scheduleEnd,
-  ChatStatus? status,
-  String? pgpPrivateKey,
+  required ChatUpdateConfigProfileType options,
 }) async {
-  account ??= getCachedWallet()?.address;
-  signer ??= getCachedWallet()?.signer;
-  pgpPrivateKey ??= getCachedWallet()?.pgpPrivateKey;
+  options.account ??= getCachedWallet()?.address;
+  options.signer ??= getCachedWallet()?.signer;
+  options.pgpPrivateKey ??= getCachedWallet()?.pgpPrivateKey;
 
   /**
    * VALIDATIONS
    */
-  if (account == null && signer == null) {
+  if (options.account == null && options.signer == null) {
     throw Exception('At least one from account or signer is necessary!');
   }
 
-  final wallet = getWallet(address: account, signer: signer);
+  final wallet = getWallet(address: options.account, signer: options.signer);
   String userDID = getAccountAddress(wallet);
   final connectedUser = await getConnectedUserV2(
     wallet: wallet,
-    privateKey: pgpPrivateKey,
+    privateKey: options.pgpPrivateKey,
   );
   /**
    * CREATE PROFILE VERIFICATION PROOF
    */
   final bodyToBeHashed = {
-    'meta': meta,
-    'scheduleAt': scheduleAt?.toIso8601String(),
-    'scheduleEnd': scheduleEnd?.toIso8601String(),
-    'status': status,
+    'meta': options.meta,
+    'scheduleAt': options.scheduleAt?.toIso8601String(),
+    'scheduleEnd': options.scheduleEnd?.toIso8601String(),
+    'status': options.status,
   };
   final hash = generateHash(bodyToBeHashed);
 
@@ -53,7 +68,7 @@ Future<GroupDTO> updateGroupConfig({
   };
 
   final result = await http.put(
-    path: '/v1/chat/groups/$chatId/config',
+    path: '/v1/chat/groups/${options.chatId}/config',
     data: body,
   );
 

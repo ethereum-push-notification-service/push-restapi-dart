@@ -15,9 +15,10 @@ Future<List<ChatMemberProfile>> getAllGroupMembers({
 
   final pagesResult = await Future.wait(
     List.generate(
-      totalPages,
-      (index) => getGroupMembers(chatId: chatId, page: index + 1, limit: limit),
-    ),
+        totalPages,
+        (index) => getGroupMembers(
+            options: FetchChatGroupInfoType(
+                chatId: chatId, page: index + 1, limit: limit))),
   );
 
   var members = <ChatMemberProfile>[];
