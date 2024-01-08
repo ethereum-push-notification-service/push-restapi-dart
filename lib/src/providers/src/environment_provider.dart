@@ -23,3 +23,14 @@ class EnvProvider extends StateNotifier<ENV> {
 ENV getCachedENV() {
   return providerContainer.read(envProvider);
 }
+
+final showHttpLogProvider = StateNotifierProvider<ShowHttpLogProvider, bool>(
+    (ref) => ShowHttpLogProvider(false));
+
+class ShowHttpLogProvider extends StateNotifier<bool> {
+  ShowHttpLogProvider(super.state);
+
+  setEnv(bool showHttpLog) {
+    state = showHttpLog;
+  }
+}

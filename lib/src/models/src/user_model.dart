@@ -50,6 +50,30 @@ class ConnectedUser extends User {
   }
 }
 
+class CreateUser extends User {
+  final String? decryptedPrivateKey;
+
+  CreateUser({
+    required this.decryptedPrivateKey,
+  });
+
+  static CreateUser fromUser(
+      {required User user, String? decryptedPrivateKey}) {
+    var createdUser = CreateUser(decryptedPrivateKey: decryptedPrivateKey);
+    createdUser.did = user.did;
+    createdUser.profile = user.profile;
+    createdUser.name = user.name;
+    createdUser.about = user.about;
+    createdUser.verificationProof = user.verificationProof;
+    createdUser.publicKey = user.publicKey;
+    createdUser.msgSent = user.msgSent;
+    createdUser.maxMsgPersisted = user.maxMsgPersisted;
+    createdUser.wallets = user.wallets;
+    createdUser.encryptedPrivateKey = user.encryptedPrivateKey;
+    return createdUser;
+  }
+}
+
 class User {
   int? msgSent;
   int? maxMsgPersisted;

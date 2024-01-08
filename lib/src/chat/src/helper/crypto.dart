@@ -124,6 +124,7 @@ Future<IEncryptedRequest> getEncryptedRequestCore({
         user: receiverAddress,
         publicKey: '',
         encryptedPrivateKey: '',
+        wallet: getWallet(address: receiverAddress),
       );
 
       // If the user is being created here, that means that user don't have a PGP keys. So this intent will be in plaintext

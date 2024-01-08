@@ -164,3 +164,26 @@ Future validateSendOptions(ComputedOptions options) async {
 
   //TODO implement validateMessageObj
 }
+
+void validateScheduleDates({
+  DateTime? scheduleAt,
+  DateTime? scheduleEnd,
+}) {
+  if (scheduleAt != null) {
+    final now = DateTime.now();
+
+    if (scheduleAt.isBefore(now)) {
+      throw Exception('Schedule start time must be in the future.');
+    }
+
+    if (scheduleEnd != null) {
+      if (scheduleEnd.isBefore(now)) {
+        throw Exception('Schedule end time must be in the future.');
+      }
+
+      if (scheduleAt.isAfter(scheduleEnd)) {
+        throw Exception('Schedule start time must be earlier than end time.');
+      }
+    }
+  }
+}

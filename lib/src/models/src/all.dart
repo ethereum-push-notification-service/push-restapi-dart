@@ -223,7 +223,7 @@ class GroupDTO {
   List<MemberDTO> members;
   List<MemberDTO> pendingMembers;
   String? contractAddressERC20;
-  int numberOfERC20;
+  int? numberOfERC20;
   String? contractAddressNFT;
   int? numberOfNFTTokens;
   String? verificationProof;

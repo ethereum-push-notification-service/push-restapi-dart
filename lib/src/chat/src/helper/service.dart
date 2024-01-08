@@ -8,9 +8,9 @@ Future<User> createUserService({
 }) async {
   wallet ??= getCachedWallet();
 
-  if (wallet == null || wallet.signer == null) {
-    throw Exception('Provide signer');
-  }
+  // if (wallet == null || wallet.signer == null) {
+  //   throw Exception('Provide signer');
+  // }
 
   final requestPath = '/v2/users/';
 
@@ -30,7 +30,7 @@ Future<User> createUserService({
 
   final hash = generateHash(data);
 
-  final signatureObj = await getEip191Signature(wallet, hash, version: 'v2');
+  final signatureObj = await getEip191Signature(wallet!, hash, version: 'v2');
 
   final body = {
     ...data,

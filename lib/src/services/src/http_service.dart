@@ -15,6 +15,13 @@ log(Object? data) {
 }
 
 class HttpService {
+  log(Object? data) {
+    final showHtttpLog = providerContainer.read(showHttpLogProvider);
+    if (showHtttpLog) {
+      print(data);
+    }
+  }
+
   static const timeOutSeconds = 30;
 
   Map<String, String>? header(String? authorization) {

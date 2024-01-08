@@ -11,8 +11,12 @@ Future<User?> getUser({
   final requestUrl = '/v2/users/?caip10=$caip10';
   final result = await http.get(path: requestUrl);
 
-  if (result == null || result is String) {
-    throw Exception(result ?? "Unable to get user with address $address");
+  if (result == null || result.isEmpty) {
+    return null;
+  }
+
+  if (result is String) {
+    throw Exception(result);
   }
 
   return User.fromJson(result);

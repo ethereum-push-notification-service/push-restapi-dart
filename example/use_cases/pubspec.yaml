@@ -1,0 +1,31 @@
+name: use_cases
+description: A new Flutter project.
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.0.6 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  web3dart: ^2.6.1
+  eth_sig_util: ^0.0.9
+  ethers: 
+    git:
+      url: https://github.com/gbogboadePush/ethers.git
+      ref: main
+  
+  push_restapi_dart:
+    path: '../../'
+  unique_names_generator: ^1.0.0
+  logger: ^2.0.2+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true

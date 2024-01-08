@@ -1,0 +1,65 @@
+PODS:
+  - connectivity_plus (0.0.1):
+    - Flutter
+    - ReachabilitySwift
+  - device_info_plus (0.0.1):
+    - Flutter
+  - Flutter (1.0.0)
+  - flutter_webrtc (0.9.36):
+    - Flutter
+    - WebRTC-SDK (= 114.5735.08)
+  - livekit_client (1.5.6):
+    - Flutter
+    - WebRTC-SDK (= 114.5735.08)
+  - openpgp (0.6.0):
+    - Flutter
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - ReachabilitySwift (5.0.0)
+  - WebRTC-SDK (114.5735.08)
+
+DEPENDENCIES:
+  - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
+  - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
+  - Flutter (from `Flutter`)
+  - flutter_webrtc (from `.symlinks/plugins/flutter_webrtc/ios`)
+  - livekit_client (from `.symlinks/plugins/livekit_client/ios`)
+  - openpgp (from `.symlinks/plugins/openpgp/ios`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
+
+SPEC REPOS:
+  trunk:
+    - ReachabilitySwift
+    - WebRTC-SDK
+
+EXTERNAL SOURCES:
+  connectivity_plus:
+    :path: ".symlinks/plugins/connectivity_plus/ios"
+  device_info_plus:
+    :path: ".symlinks/plugins/device_info_plus/ios"
+  Flutter:
+    :path: Flutter
+  flutter_webrtc:
+    :path: ".symlinks/plugins/flutter_webrtc/ios"
+  livekit_client:
+    :path: ".symlinks/plugins/livekit_client/ios"
+  openpgp:
+    :path: ".symlinks/plugins/openpgp/ios"
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
+
+SPEC CHECKSUMS:
+  connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
+  device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  flutter_webrtc: 55df3aaa802114dad390191a46c2c8d535751268
+  livekit_client: 381ed3cad6ba0b6ffbfffcf1b5db95ad1e61ffa2
+  openpgp: 5acfbf58958e99c451509150274c4aa3f3a5980b
+  path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
+  ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
+  WebRTC-SDK: c24d2a6c9f571f2ed42297cb8ffba9557093142b
+
+PODFILE CHECKSUM: f9420bd595da8fbce156b547dcd3368afc5226ff
+
+COCOAPODS: 1.14.2
